@@ -6,6 +6,8 @@
 
 #include "WindowHelper.hpp"
 
+#include "ViewModel/MainViewModel.hpp"
+
 int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow ) {
 
 	if ( !g_Window->Create( "ImGui Blur", hInstance ) )
@@ -19,9 +21,12 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 		if ( g_Window->HandleMessage( ) )
 			break;
 
+		if ( !g_Window->Running( ) )
+			break;
+
 		g_Window->PreRender( );
 
-		ImGui::ShowDemoWindow( );
+		g_MainViewModel->MainForm( );
 
 		g_Window->PostRender( );
 	}

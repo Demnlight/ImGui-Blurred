@@ -4,26 +4,52 @@
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 LRESULT CWindowHelper::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+	if ( ImGui_ImplWin32_WndProcHandler( hwnd, uMsg, wParam, lParam ) )
+		return true;
 
 	switch ( uMsg ) {
 	case WM_SIZE:
 		if ( wParam == SIZE_MINIMIZED )
 			return 0;
-		g_Window->DirectXVar.ResizeWidth = ( UINT ) LOWORD( lParam ); // Queue resize
+
+		g_Window->DirectXVar.ResizeWidth = ( UINT ) LOWORD( lParam );
 		g_Window->DirectXVar.ResizeHeight = ( UINT ) HIWORD( lParam );
+
+		if ( g_Window->IsFrameFixed( ) ) {
+			g_Window->WindowWidth( ) = ( UINT ) LOWORD( lParam );
+			g_Window->WindowHeight( ) = ( UINT ) HIWORD( lParam );
+
+		}
+
 		return 0;
 	case WM_SYSCOMMAND:
 		if ( ( wParam & 0xfff0 ) == SC_KEYMENU ) // Disable ALT application menu
 			return 0;
 		break;
+	case WM_LBUTTONDOWN:
+	{
+		g_Window->Position( ) = MAKEPOINTS( lParam ); // set click points
+	}return 0;
+
+	case WM_MOUSEMOVE:
+	{
+		if ( wParam == MK_LBUTTON && ImGui::GetIO( ).Fonts ) {
+			const auto points = MAKEPOINTS( lParam );
+			auto rect = ::RECT{ };
+
+			GetWindowRect( g_Window->hWnd( ), &rect );
+
+			rect.left += points.x - g_Window->Position( ).x;
+			rect.top += points.y - g_Window->Position( ).y;
+
+			if ( g_Window->Position( ).x >= 0 && g_Window->Position( ).x <= g_Window->WindowWidth( ) && g_Window->Position( ).y >= 0 && g_Window->Position( ).y <= ImGui::GetIO().Fonts->Fonts[0]->FontSize * 2 )
+				SetWindowPos( g_Window->hWnd( ), HWND_TOPMOST, rect.left, rect.top, 0, 0, SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOZORDER );
+		}
+	}return 0;
 	case WM_DESTROY:
 		::PostQuitMessage( 0 );
 		return 0;
 	}
-
-	if ( ImGui_ImplWin32_WndProcHandler( hwnd, uMsg, wParam, lParam ) )
-		return true;
-
 
 	return DefWindowProc( hwnd, uMsg, wParam, lParam );
 }

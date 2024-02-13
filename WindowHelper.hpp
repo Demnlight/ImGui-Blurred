@@ -7,6 +7,10 @@
 #include "ImGui/imgui.h"
 #include "ImGui/backends/imgui_impl_dx11.h"
 #include "ImGui/backends/imgui_impl_win32.h"
+#include "ImGui/imgui_freetype.h"
+
+#include "Resources/Fonts/Montserrat-Regular.h"
+#include "Resources/Fonts/Montserrat-Medium.h"
 
 #pragma comment(lib, "D3D11.lib")
 
@@ -31,7 +35,7 @@ public:
 		wc.lpszMenuName = sWindowName.c_str( );
 		RegisterClass( &wc );
 
-		HWND hwnd = CreateWindowEx( WS_EX_COMPOSITED, sWindowName.c_str( ), sWindowName.c_str( ), WS_OVERLAPPEDWINDOW, desktop.right / 2 - 400, desktop.bottom / 2 - 400, 799, 799, NULL, NULL, hInstance, NULL );
+		HWND hwnd = CreateWindowEx( WS_EX_COMPOSITED, sWindowName.c_str( ), sWindowName.c_str( ), WS_POPUPWINDOW, desktop.right / 2 - 400, desktop.bottom / 2 - 400, this->WindowWidth( ) - 1, this->WindowHeight( ) - 1, NULL, NULL, hInstance, NULL );
 
 		this->Data.hWnd = hwnd;
 
@@ -92,9 +96,19 @@ public:
 		ImGui::CreateContext( );
 		ImGuiIO& io = ImGui::GetIO( ); ( void ) io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		io.ConfigWindowsResizeFromEdges = false;
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark( );
+
+		ImFontConfig FontConfig;
+		FontConfig.FontBuilderFlags = ImGuiFreeTypeBuilderFlags_ForceAutoHint;
+
+		this->Fonts.fMediumMontserrat = io.Fonts->AddFontFromMemoryTTF( Resources::MontserratMedium, sizeof( Resources::MontserratMedium ), 16, &FontConfig, io.Fonts->GetGlyphRangesCyrillic( ) );
+		this->Fonts.fRegularMontserrat = io.Fonts->AddFontFromMemoryTTF( Resources::MontserratRegular, sizeof( Resources::MontserratRegular ), 16, &FontConfig, io.Fonts->GetGlyphRangesCyrillic( ) );
+		io.Fonts->AddFontDefault( );
+
+		ImGuiFreeType::BuildFontAtlas( io.Fonts );
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplWin32_Init( this->hWnd( ) );
@@ -128,21 +142,21 @@ public:
 		RECT desktop;
 		const HWND hDesktop = GetDesktopWindow( );
 		GetWindowRect( hDesktop, &desktop );
-		SetWindowPos( this->hWnd( ), NULL, desktop.right / 2 - 400, desktop.bottom / 2 - 400, 800, 800, SWP_SHOWWINDOW );
+		SetWindowPos( this->hWnd( ), NULL, desktop.right / 2 - 400, desktop.bottom / 2 - 400, this->WindowWidth( ), this->WindowHeight( ), SWP_SHOWWINDOW );
 
+		this->Data.bIsFrameFixed = true;
 	}
 
 	bool HandleMessage( ) {
-		bool done = false;
 		MSG msg;
 		while ( ::PeekMessage( &msg, nullptr, 0U, 0U, PM_REMOVE ) ) {
 			::TranslateMessage( &msg );
 			::DispatchMessage( &msg );
 			if ( msg.message == WM_QUIT )
-				done = true;
+				return true;
 		}
 
-		return done;
+		return false;
 	}
 
 	HWND& hWnd( ) {
@@ -155,6 +169,12 @@ public:
 	UINT& ResizeWidth( ) { return this->DirectXVar.ResizeWidth; }
 	UINT& ResizeHeight( ) { return this->DirectXVar.ResizeHeight; };
 	ID3D11RenderTargetView* RenderTargetView( ) { return this->DirectXVar.RenderTargetView; };
+
+	int& WindowWidth( ) { return this->Data.nWindowWidth; };
+	int& WindowHeight( ) { return this->Data.nWindowHeight; };
+	POINTS& Position( ) { return this->Data.pWindowPosition; };
+	bool& Running( ) { return this->Data.bRunning; };
+	bool& IsFrameFixed( ) { return this->Data.bIsFrameFixed; };
 
 	struct stDirectXFunc
 	{
@@ -176,7 +196,7 @@ private:
 		ID3D11Device* Device = nullptr;
 		ID3D11DeviceContext* DeviceContext = nullptr;
 		IDXGISwapChain* SwapChain = nullptr;
-		UINT ResizeWidth = 0, ResizeHeight = 0;
+		UINT ResizeWidth = -1, ResizeHeight = -1;
 		ID3D11RenderTargetView* RenderTargetView = nullptr;
 
 	} DirectXVar;
@@ -184,7 +204,27 @@ private:
 	struct stData
 	{
 		HWND hWnd = NULL;
+
+		int nWindowWidth = 500;
+		int nWindowHeight = 500;
+
+		POINTS pWindowPosition;
+
+		bool bRunning = true;
+		bool bIsFrameFixed = false;
+
 	} Data;
+
+	struct stFonts
+	{
+		ImFont* fRegularMontserrat = nullptr;
+		ImFont* fBoldMontserrat = nullptr;
+		ImFont* fSemiBoldMontserrat = nullptr;
+		ImFont* fThinMontserrat = nullptr;
+		ImFont* fLightMontserrat = nullptr;
+		ImFont* fMediumMontserrat = nullptr;
+
+	} Fonts;
 };
 
 inline std::shared_ptr<CWindowHelper> g_Window = std::make_shared<CWindowHelper>( );

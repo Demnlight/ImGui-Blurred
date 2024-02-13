@@ -74,6 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(SolutionDir)$(Configuration)\Temp\</IntDir>
+    <ExternalIncludePath>$(ProjectDir)ImGui\freetype\;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -147,6 +148,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Helpers\WindowState.hpp" />
+    <ClInclude Include="ImGui\freetype\ft2build.h" />
+    <ClInclude Include="ImGui\imgui_freetype.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="ImGui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="ImGui\backends\imgui_impl_win32.h" />
@@ -157,9 +161,19 @@
     <ClInclude Include="ImGui\imstb_rectpack.h" />
     <ClInclude Include="ImGui\imstb_textedit.h" />
     <ClInclude Include="ImGui\imstb_truetype.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Bold.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-ExtraLight.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Italic.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Light.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Medium.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Regular.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-SemiBold.h" />
+    <ClInclude Include="Resources\Fonts\Montserrat-Thin.h" />
+    <ClInclude Include="ViewModel\MainViewModel.hpp" />
     <ClInclude Include="WindowHelper.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ImGui\imgui_freetype.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp" />
@@ -169,7 +183,11 @@
     <ClCompile Include="ImGui\imgui_stdlib.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="ViewModel\MainViewModel.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ImGui\freetype\freetype.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
