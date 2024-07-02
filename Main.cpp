@@ -15,7 +15,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
 
 	g_Window->AddBlur( );
 	g_Window->SetupImGui( );
-	g_Window->FixIssues( );
+	g_Window->SetStartWindowPos( );
 
 	while ( true ) {
 		if ( g_Window->HandleMessage( ) )

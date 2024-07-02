@@ -138,7 +138,7 @@ public:
 		this->DirectXVar.SwapChain->Present( 1, 0 );
 	}
 
-	void FixIssues( ) {
+	void SetStartWindowPos( ) {
 		RECT desktop;
 		const HWND hDesktop = GetDesktopWindow( );
 		GetWindowRect( hDesktop, &desktop );
